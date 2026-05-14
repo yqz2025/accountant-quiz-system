@@ -1,0 +1,678 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>会计基础随机测验 | 15题(5单选+5多选+5判断)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #eef2f7;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .quiz-container {
+            max-width: 1000px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: #1e3a5f;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .title {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        .stats {
+            background: #0f2b46;
+            padding: 6px 18px;
+            border-radius: 40px;
+            font-size: 1rem;
+        }
+        .question-area {
+            padding: 28px 32px 20px;
+        }
+        .progress {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #4a627a;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .progress-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        .progress-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .progress-buttons button {
+            padding: 6px 16px;
+            font-size: 0.85rem;
+        }
+        .q-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #0c4a6e;
+            margin: 15px 0 25px 0;
+            line-height: 1.4;
+        }
+        .options {
+            margin: 20px 0 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .option-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 1px solid #e2edf7;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .option-item:hover {
+            background: #eef2ff;
+        }
+        input[type="radio"], input[type="checkbox"] {
+            margin-top: 3px;
+            transform: scale(1.05);
+            accent-color: #1e3a5f;
+        }
+        .option-letter {
+            font-weight: 700;
+            color: #1e3a5f;
+            min-width: 28px;
+        }
+        .option-text {
+            flex: 1;
+            color: #1e293b;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #1e3a5f;
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        button:hover {
+            background: #0f2b46;
+            transform: translateY(-1px);
+        }
+        .submit-btn {
+            background: #2c6e2c;
+        }
+        .submit-btn:hover {
+            background: #1e5a1e;
+        }
+        .reset-btn {
+            background: #6c757d;
+        }
+        .review-btn {
+            background: #b45309;
+        }
+        .review-btn:hover {
+            background: #9b3b07;
+        }
+        .result-panel {
+            background: #f1f5f9;
+            border-radius: 24px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #1e3a5f;
+        }
+        .score-text {
+            font-size: 1.4rem;
+            font-weight: bold;
+        }
+        .review-area {
+            margin-top: 25px;
+            border-top: 2px dashed #cbd5e1;
+            padding-top: 20px;
+        }
+        .review-card {
+            background: white;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .review-question {
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .review-answer {
+            margin: 8px 0;
+            color: #2c3e66;
+        }
+        .review-correct {
+            color: #15803d;
+            font-weight: 600;
+        }
+        .review-wrong {
+            color: #b91c1c;
+            font-weight: 600;
+        }
+        .explanation-text {
+            color: #4a5568;
+            background: #f8fafc;
+            padding: 10px;
+            border-radius: 12px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+        .hidden {
+            display: none;
+        }
+        footer {
+            background: #f1f5f9;
+            text-align: center;
+            padding: 14px;
+            font-size: 0.75rem;
+            color: #5b6e8c;
+            border-top: 1px solid #e2e8f0;
+        }
+        @media (max-width: 650px) {
+            .question-area { padding: 20px; }
+            .q-text { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container" id="quizApp">
+    <div class="header">
+        <div class="title">📝 随机测验 · 会计基础</div>
+        <div class="stats">⏱️ 共15题 | 每题2分 | 满分30分</div>
+    </div>
+    <div class="question-area">
+        <div class="progress">
+            <div class="progress-left">
+                <span>📌 第 <span id="currentIdx">1</span> / <span id="totalQ">15</span> 题</span>
+                <span id="typeLabel"></span>
+            </div>
+            <div class="progress-buttons">
+                <button id="submitFinalBtn" class="submit-btn">📥 提交试卷</button>
+                <button id="resetQuizBtn" class="reset-btn">🔄 重新测验</button>
+            </div>
+        </div>
+        <div id="questionText" class="q-text"></div>
+        <div id="optionsContainer" class="options"></div>
+        <div class="nav-buttons">
+            <button id="prevBtn" class="hidden">◀ 上一题</button>
+            <button id="nextBtn" class="hidden">▶ 下一题</button>
+        </div>
+        <div id="resultPanel" class="result-panel hidden">
+            <div id="scoreMsg" class="score-text"></div>
+            <div id="simpleStats"></div>
+            <button id="reviewBtn" class="review-btn">📖 评讲试卷</button>
+            <div id="reviewContainer" class="review-area hidden"></div>
+        </div>
+    </div>
+    <footer>随机抽取5道单选 + 5道多选 + 5道判断 | 全部答完才可提交 | 多选题需全对才得分</footer>
+</div>
+
+<script>
+    // DOM 元素（在 DOMContentLoaded 后获取）
+    let totalQSpan, currentIdxSpan, typeLabelSpan, questionTextDiv, optionsContainer;
+    let prevBtn, nextBtn, submitFinalBtn, resetQuizBtn, resultPanel;
+    let scoreMsgDiv, simpleStatsDiv, reviewBtn, reviewContainer;
+
+    // 数据变量
+    let allQuestions = [];
+    let quizQuestions = [];
+    let quiz = [];
+    let currentIndex = 0;
+    let userSelections = [];
+    let answeredStatus = [];
+    let startTime = null;  // 记录开始时间
+    let endTime = null;    // 记录结束时间
+
+    // 从 API 加载题目数据
+    async function loadQuestionsData() {
+        try {
+            const response = await fetch('/api/questions');
+            const result = await response.json();
+            
+            if (result.success) {
+                allQuestions = result.data;
+                initQuiz();
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            console.error("加载题目数据失败:", error);
+            document.getElementById("quizApp").innerHTML = 
+                "<div style='padding:40px;text-align:center;color:red;'>⚠️ 题目数据加载失败：" + error.message + "</div>";
+        }
+    }
+
+    // 按题型过滤分类
+    function categorizeQuestions() {
+        const singleChoiceBank = allQuestions.filter(q => q.type === "single_choice");
+        const multiChoiceBank = allQuestions.filter(q => q.type === "multiple_choice");
+        const trueFalseBank = allQuestions.filter(q => q.type === "true_false");
+        return { singleChoiceBank, multiChoiceBank, trueFalseBank };
+    }
+
+    // 随机抽取函数
+    function randomSelect(arr, count) {
+        const shuffled = [...arr];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled.slice(0, count);
+    }
+
+    // 构建测验卷
+    function buildQuiz() {
+        const { singleChoiceBank, multiChoiceBank, trueFalseBank } = categorizeQuestions();
+        const selectedSingle = randomSelect(singleChoiceBank, 3);
+        const selectedMulti = randomSelect(multiChoiceBank, 5);
+        const selectedTF = randomSelect(trueFalseBank, 5);
+        quizQuestions = [...selectedSingle, ...selectedMulti, ...selectedTF];
+        return quizQuestions;
+    }
+
+    function updateNavButtons() {
+        if (!prevBtn || !nextBtn) return;
+        if (currentIndex === 0) prevBtn.classList.add("hidden");
+        else prevBtn.classList.remove("hidden");
+        if (currentIndex === quiz.length-1) nextBtn.classList.add("hidden");
+        else nextBtn.classList.remove("hidden");
+    }
+
+    function updateSubmitButton() {
+        if (!submitFinalBtn) return;
+        const allAnswered = checkAllAnswered();
+        submitFinalBtn.disabled = !allAnswered;
+        if (allAnswered) {
+            submitFinalBtn.style.opacity = "1";
+            submitFinalBtn.style.cursor = "pointer";
+        } else {
+            submitFinalBtn.style.opacity = "0.5";
+            submitFinalBtn.style.cursor = "not-allowed";
+        }
+    }
+
+    function saveCurrentSelection() {
+        const q = quiz[currentIndex];
+        if (q.type === "single_choice" || q.type === "true_false") {
+            const selected = document.querySelector('input[name="opt"]:checked');
+            userSelections[currentIndex] = selected ? selected.value : null;
+        } else if (q.type === "multiple_choice") {
+            const checkboxes = document.querySelectorAll('input[name="opt"]:checked');
+            if (checkboxes.length > 0) {
+                let vals = Array.from(checkboxes).map(cb => cb.value).sort();
+                userSelections[currentIndex] = vals.join('');
+            } else {
+                userSelections[currentIndex] = null;
+            }
+        }
+        if (userSelections[currentIndex] !== null) {
+            answeredStatus[currentIndex] = true;
+        } else {
+            answeredStatus[currentIndex] = false;
+        }
+        updateSubmitButton();
+    }
+
+    function loadQuestion() {
+        if (!quiz[currentIndex]) return;
+        const q = quiz[currentIndex];
+        questionTextDiv.innerText = `第${currentIndex + 1}题. ${q.question}`;
+        let typeStr = q.type === "single_choice" ? "【单选题】" : (q.type === "multiple_choice" ? "【多选题】" : "【判断题】");
+        typeLabelSpan.innerText = typeStr;
+        const inputType = (q.type === "multiple_choice") ? "checkbox" : "radio";
+        let optionsHtml = "";
+        q.options.forEach((opt, index) => {
+            if (q.type === "true_false") {
+                const text = opt ? "正确" : "错误";
+                const letter = String.fromCharCode(65 + index);
+                optionsHtml += `
+                    <label class="option-item">
+                        <input type="${inputType}" name="opt" value="${letter}">
+                        <span class="option-letter">${letter}.</span>
+                        <span class="option-text">${text}</span>
+                    </label>
+                `;
+            } else {
+                const letter = opt.charAt(0);
+                const text = opt.substring(2);
+                optionsHtml += `
+                    <label class="option-item">
+                        <input type="${inputType}" name="opt" value="${letter}">
+                        <span class="option-letter">${letter}.</span>
+                        <span class="option-text">${text}</span>
+                    </label>
+                `;
+            }
+        });
+        optionsContainer.innerHTML = optionsHtml;
+        currentIdxSpan.innerText = currentIndex + 1;
+        const saved = userSelections[currentIndex];
+        if (saved !== null && saved !== undefined) {
+            if (q.type === "multiple_choice") {
+                const chars = saved.split('');
+                chars.forEach(ch => {
+                    const cb = document.querySelector(`input[value="${ch}"]`);
+                    if (cb) cb.checked = true;
+                });
+            } else {
+                const radio = document.querySelector(`input[value="${saved}"]`);
+                if (radio) radio.checked = true;
+            }
+        }
+        updateNavButtons();
+    }
+
+    function goPrev() {
+        if (currentIndex > 0) {
+            saveCurrentSelection();
+            currentIndex--;
+            loadQuestion();
+        }
+    }
+    
+    function goNext() {
+        if (currentIndex < quiz.length - 1) {
+            saveCurrentSelection();
+            currentIndex++;
+            loadQuestion();
+        }
+    }
+
+    function checkAllAnswered() {
+        for (let i = 0; i < quiz.length - 1; i++) {
+            if (!userSelections[i] || userSelections[i] === "") return false;
+        }
+        return true;
+    }
+
+    function computeScore() {
+        let correctCount = 0;
+        for (let i = 0; i < quiz.length; i++) {
+            const userAns = userSelections[i];
+            const correctAns = quiz[i].answer;
+            if (userAns === correctAns) correctCount++;
+        }
+        return { correctCount, score: correctCount * 2 };
+    }
+
+    function submitQuiz() {
+        saveCurrentSelection();
+        const { correctCount, score } = computeScore();
+        scoreMsgDiv.innerHTML = `📊 得分：${score} / 30 分  (答对 ${correctCount} 题，答错 ${quiz.length - correctCount} 题)`;
+        simpleStatsDiv.innerHTML = `✅ 正确: ${correctCount} &nbsp;| ❌ 错误: ${quiz.length - correctCount}`;
+        resultPanel.classList.remove("hidden");
+        submitFinalBtn.disabled = true;
+        reviewContainer.classList.add("hidden");
+        reviewContainer.innerHTML = "";
+        
+        // 记录结束时间
+        endTime = new Date();
+        
+        // 保存成绩到数据库
+        saveScoreToDatabase(score);
+    }
+
+    // 保存成绩到数据库
+    async function saveScoreToDatabase(score) {
+        const studentId = localStorage.getItem('studentId');
+        const studentName = localStorage.getItem('studentName');
+        const studentClass = localStorage.getItem('studentClass');
+        const studentMajor = localStorage.getItem('studentMajor');
+        
+        console.log('=== 调试信息 ===');
+        console.log('studentId:', studentId);
+        console.log('studentName:', studentName);
+        console.log('studentClass:', studentClass);
+        console.log('studentMajor:', studentMajor);
+        console.log('startTime:', startTime);
+        console.log('endTime:', endTime);
+        
+        if (!studentId || !studentName || !studentClass || !studentMajor) {
+            console.error('保存失败: 缺少用户信息');
+            const saveMsg = document.createElement('div');
+            saveMsg.style.cssText = 'margin-top:15px;padding:10px;background:#fee2e2;border-radius:8px;color:#991b1b;text-align:center;font-weight:600;';
+            saveMsg.innerHTML = '❌ 保存失败：用户信息丢失，请重新注册';
+            simpleStatsDiv.appendChild(saveMsg);
+            return;
+        }
+        
+        if (!startTime || !endTime) {
+            console.error('保存失败: 时间记录错误');
+            const saveMsg = document.createElement('div');
+            saveMsg.style.cssText = 'margin-top:15px;padding:10px;background:#fee2e2;border-radius:8px;color:#991b1b;text-align:center;font-weight:600;';
+            saveMsg.innerHTML = '❌ 保存失败：时间记录错误';
+            simpleStatsDiv.appendChild(saveMsg);
+            return;
+        }
+        
+        // 计算用时
+        const durationMs = endTime - startTime;
+        const minutes = Math.floor(durationMs / 60000);
+        const seconds = Math.floor((durationMs % 60000) / 1000);
+        const duration = `${minutes}分钟${seconds}秒`;
+        
+        console.log('准备发送的数据:', {
+            studentId,
+            studentName,
+            className: studentClass,
+            major: studentMajor,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+            duration,
+            score
+        });
+        
+        // 验证数据完整性
+        const dataToCheck = {
+            studentId,
+            studentName,
+            className: studentClass,
+            major: studentMajor,
+            startTime: startTime.toISOString(),
+            endTime: endTime.toISOString(),
+            duration,
+            score
+        };
+        
+        console.log('=== 数据验证 ===');
+        console.log('studentId 是否存在:', !!dataToCheck.studentId);
+        console.log('score 是否存在:', dataToCheck.score !== null && dataToCheck.score !== undefined);
+        console.log('startTime 是否存在:', !!dataToCheck.startTime);
+        console.log('endTime 是否存在:', !!dataToCheck.endTime);
+        
+        const requestBody = JSON.stringify(dataToCheck);
+        console.log('JSON 字符串:', requestBody);
+        
+        try {
+            const response = await fetch('/api/save-score', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: requestBody
+            });
+            
+            const result = await response.json();
+            
+            console.log('服务器返回结果:', result);
+            
+            if (result.success) {
+                console.log('✅ 成绩已保存');
+                
+                // 在结果面板显示提示
+                const saveMsg = document.createElement('div');
+                saveMsg.style.cssText = 'margin-top:15px;padding:10px;background:#d1fae5;border-radius:8px;color:#065f46;text-align:center;font-weight:600;';
+                saveMsg.innerHTML = '✅ 成绩已成功保存到数据库';
+                simpleStatsDiv.appendChild(saveMsg);
+            } else {
+                console.error('保存失败:', result.msg);
+                const saveMsg = document.createElement('div');
+                saveMsg.style.cssText = 'margin-top:15px;padding:10px;background:#fee2e2;border-radius:8px;color:#991b1b;text-align:center;font-weight:600;';
+                saveMsg.innerHTML = `❌ 保存失败：${result.msg}`;
+                simpleStatsDiv.appendChild(saveMsg);
+            }
+        } catch (error) {
+            console.error('保存成绩失败:', error);
+            const saveMsg = document.createElement('div');
+            saveMsg.style.cssText = 'margin-top:15px;padding:10px;background:#fee2e2;border-radius:8px;color:#991b1b;text-align:center;font-weight:600;';
+            saveMsg.innerHTML = '❌ 保存失败：网络错误';
+            simpleStatsDiv.appendChild(saveMsg);
+        }
+    }
+
+    function showReview() {
+        reviewContainer.innerHTML = "";
+        for (let i = 0; i < quiz.length; i++) {
+            const q = quiz[i];
+            let userAns = userSelections[i];
+            let correctAns = q.answer;
+            
+            if (userAns === null || userAns === undefined || userAns === "") {
+                userAns = "未作答";
+            } else if (q.type === "true_false") {
+                const idx = userAns.charCodeAt(0) - 65;
+                userAns = q.options[idx] ? true : false;
+            }
+            
+            if (q.type === "true_false") {
+                correctAns = correctAns ? true : false;
+            }
+            
+            const isCorrect = (userAns === correctAns);
+            const statusClass = isCorrect ? "review-correct" : "review-wrong";
+            const statusText = isCorrect ? "✓ 正确" : "✗ 错误";
+            const card = document.createElement("div");
+            card.className = "review-card";
+            card.innerHTML = `
+                <div class="review-question"><strong>${i+1}. ${q.question}</strong> <span class="${statusClass}">(${statusText})</span></div>
+                <div class="review-answer"> 您的答案：${userAns}</div>
+                <div class="review-answer">✔ 正确答案：${correctAns}</div>
+                <div class="explanation-text">📖 解析：${q.explanation}</div>
+            `;
+            reviewContainer.appendChild(card);
+        }
+        reviewContainer.classList.remove("hidden");
+    }
+
+    function resetQuiz() {
+        buildQuiz();
+        quiz = [...quizQuestions];
+        userSelections = new Array(quiz.length).fill(null);
+        answeredStatus = new Array(quiz.length).fill(false);
+        currentIndex = 0;
+        resultPanel.classList.add("hidden");
+        submitFinalBtn.disabled = false;
+        reviewContainer.classList.add("hidden");
+        reviewContainer.innerHTML = "";
+        loadQuestion();
+        updateNavButtons();
+    }
+
+    // 初始化
+    function initQuiz() {
+        buildQuiz();
+        quiz = [...quizQuestions];
+        userSelections = new Array(quiz.length).fill(null);
+        answeredStatus = new Array(quiz.length).fill(false);
+        totalQSpan.innerText = quiz.length;
+        currentIndex = 0;
+        loadQuestion();
+        updateSubmitButton();
+        prevBtn.addEventListener("click", goPrev);
+        nextBtn.addEventListener("click", goNext);
+        submitFinalBtn.addEventListener("click", submitQuiz);
+        resetQuizBtn.addEventListener("click", resetQuiz);
+        reviewBtn.addEventListener("click", showReview);
+    }
+    
+    // 页面加载完成后初始化
+window.addEventListener('DOMContentLoaded', function() {
+    // 获取 DOM 元素
+    totalQSpan = document.getElementById("totalQ");
+    currentIdxSpan = document.getElementById("currentIdx");
+    typeLabelSpan = document.getElementById("typeLabel");
+    questionTextDiv = document.getElementById("questionText");
+    optionsContainer = document.getElementById("optionsContainer");
+    prevBtn = document.getElementById("prevBtn");
+    nextBtn = document.getElementById("nextBtn");
+    submitFinalBtn = document.getElementById("submitFinalBtn");
+    resetQuizBtn = document.getElementById("resetQuizBtn");
+    resultPanel = document.getElementById("resultPanel");
+    scoreMsgDiv = document.getElementById("scoreMsg");
+    simpleStatsDiv = document.getElementById("simpleStats");
+    reviewBtn = document.getElementById("reviewBtn");
+    reviewContainer = document.getElementById("reviewContainer");
+    
+    // 检查是否已注册
+    const studentId = localStorage.getItem('studentId');
+    const studentName = localStorage.getItem('studentName');
+    const studentClass = localStorage.getItem('studentClass');
+    const studentMajor = localStorage.getItem('studentMajor');
+    
+    if (!studentId) {
+        alert('请先注册！');
+        location.href = '/register';
+        return;
+    }
+    
+    // 记录开始时间
+    startTime = new Date();
+    
+    // 显示用户信息
+    const header = document.querySelector('.header');
+    const userInfo = document.createElement('div');
+    userInfo.style.cssText = 'background:#0f2b46;padding:6px 18px;border-radius:40px;font-size:0.9rem;';
+    userInfo.innerHTML = `👤 ${studentName}`;
+    header.appendChild(userInfo);
+    
+    // 检查元素是否都获取到了
+    if (!totalQSpan || !currentIdxSpan || !questionTextDiv) {
+        console.error("DOM 元素获取失败");
+        return;
+    }
+    
+    // 加载题目数据
+    loadQuestionsData();
+});
+</script>
+</body>
+</html>

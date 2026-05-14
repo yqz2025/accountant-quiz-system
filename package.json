@@ -1,0 +1,31 @@
+{
+  "name": "accountant-quiz-system",
+  "version": "1.0.0",
+  "description": "会计基础答题系统",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "start:prod": "pm2 start server.js --name accountant-quiz",
+    "stop": "pm2 stop accountant-quiz",
+    "restart": "pm2 restart accountant-quiz",
+    "logs": "pm2 logs accountant-quiz"
+  },
+  "keywords": [
+    "quiz",
+    "accounting",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "helmet": "^6.2.0",
+    "xlsx": "^0.18.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

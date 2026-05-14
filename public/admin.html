@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会计基础答题系统 - 数据管理</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e66 0%, #1e3a5f 100%);
+            color: white;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+        }
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: #10b981;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .content {
+            padding: 30px 40px;
+        }
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-card.blue {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+        .stat-card.green {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .stat-card.orange {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        thead {
+            background: #f8fafc;
+        }
+        th {
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        td {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+        .score-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        .score-excellent {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .score-good {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .score-average {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .score-poor {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .delete-btn:hover {
+            background: #dc2626;
+            transform: scale(1.05);
+        }
+        .delete-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+        .loading-spinner {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #2c3e66;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        .refresh-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #2c3e66;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            font-size: 1.5rem;
+        }
+        .refresh-btn:hover {
+            transform: scale(1.1);
+            background: #1e2a47;
+        }
+        
+        /* 密码验证弹窗样式 */
+        .password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .password-modal.hidden {
+            display: none;
+        }
+        .password-card {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .password-card h2 {
+            color: #2c3e66;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        .password-card p {
+            color: #64748b;
+            margin-bottom: 25px;
+            font-size: 0.9rem;
+        }
+        .password-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        .password-input:focus {
+            outline: none;
+            border-color: #2c3e66;
+        }
+        .password-input.error {
+            border-color: #ef4444;
+        }
+        .password-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            display: none;
+        }
+        .password-submit {
+            width: 100%;
+            padding: 14px;
+            background: #2c3e66;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .password-submit:hover {
+            background: #1e2a47;
+        }
+        .password-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .back-link {
+            margin-top: 20px;
+        }
+        .back-link a {
+            color: #2c3e66;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 密码验证弹窗 -->
+    <div id="passwordModal" class="password-modal">
+        <div class="password-card">
+            <h2>🔒 管理员验证</h2>
+            <p>请输入管理员密码以访问数据管理页面</p>
+            <input 
+                type="password" 
+                id="passwordInput" 
+                class="password-input" 
+                placeholder="请输入密码"
+                maxlength="20"
+            >
+            <div id="passwordError" class="password-error">密码错误，请重试</div>
+            <button class="password-submit" onclick="verifyPassword()">验证并进入</button>
+            <div class="back-link">
+                <a href="/">← 返回首页</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer" style="display: none;">
+        <div class="header">
+            <h1>📊 测试数据管理</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="exportExcel()">
+                    📥 导出 Excel
+                </button>
+                <a href="/" class="btn btn-secondary">
+                    ← 返回首页
+                </a>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="stats-bar" id="statsBar">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalRecords">-</div>
+                    <div class="stat-label">总测试次数</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-value" id="avgScore">-</div>
+                    <div class="stat-label">平均分</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-value" id="maxScore">-</div>
+                    <div class="stat-label">最高分</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-value" id="minScore">-</div>
+                    <div class="stat-label">最低分</div>
+                </div>
+            </div>
+            
+            <div class="table-container" id="tableContainer">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div>加载数据中...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="refresh-btn" onclick="loadData()" title="刷新数据" id="refreshBtn" style="display: none;">
+        🔄
+    </button>
+
+    <script>
+        let testRecords = [];
+
+        // 验证密码
+        async function verifyPassword() {
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordError = document.getElementById('passwordError');
+            const submitBtn = document.querySelector('.password-submit');
+            
+            const password = passwordInput.value.trim();
+            
+            if (!password) {
+                passwordInput.classList.add('error');
+                passwordError.textContent = '请输入密码';
+                passwordError.style.display = 'block';
+                return;
+            }
+            
+            try {
+                // 通过API验证密码
+                const response = await fetch('/api/admin/verify', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ password })
+                });
+                
+                const result = await response.json();
+                
+                if (!result.success) {
+                    passwordInput.classList.add('error');
+                    passwordError.textContent = '密码错误，请重试';
+                    passwordError.style.display = 'block';
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                    return;
+                }
+            } catch (error) {
+                console.error('验证失败:', error);
+                passwordInput.classList.add('error');
+                passwordError.textContent = '验证失败，请重试';
+                passwordError.style.display = 'block';
+                return;
+            }
+            
+            // 密码正确
+            passwordError.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = '验证中...';
+            
+            setTimeout(() => {
+                // 隐藏密码弹窗
+                document.getElementById('passwordModal').classList.add('hidden');
+                // 显示主内容
+                document.getElementById('mainContainer').style.display = 'block';
+                document.getElementById('refreshBtn').style.display = 'block';
+                // 加载数据
+                loadData();
+            }, 500);
+        }
+
+        // 回车键提交密码
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                verifyPassword();
+            }
+        });
+
+        // 页面加载时显示密码验证
+        window.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('passwordInput').focus();
+        });
+
+        // 加载数据
+        async function loadData() {
+            const tableContainer = document.getElementById('tableContainer');
+            tableContainer.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <div>加载数据中...</div>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch('/api/test-records');
+                const result = await response.json();
+                
+                if (result.success) {
+                    testRecords = result.data;
+                    updateStats();
+                    renderTable();
+                } else {
+                    tableContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">️</div>
+                            <div>加载数据失败</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                tableContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">❌</div>
+                        <div>加载数据失败，请检查网络连接</div>
+                    </div>
+                `;
+            }
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            const totalRecords = testRecords.length;
+            document.getElementById('totalRecords').textContent = totalRecords;
+            
+            if (totalRecords === 0) {
+                document.getElementById('avgScore').textContent = '-';
+                document.getElementById('maxScore').textContent = '-';
+                document.getElementById('minScore').textContent = '-';
+                return;
+            }
+            
+            const scores = testRecords.map(r => r.score);
+            const avgScore = (scores.reduce((a, b) => a + b, 0) / totalRecords).toFixed(1);
+            const maxScore = Math.max(...scores);
+            const minScore = Math.min(...scores);
+            
+            document.getElementById('avgScore').textContent = avgScore;
+            document.getElementById('maxScore').textContent = maxScore;
+            document.getElementById('minScore').textContent = minScore;
+        }
+
+        // 获取分数等级样式
+        function getScoreClass(score) {
+            if (score >= 27) return 'score-excellent';
+            if (score >= 21) return 'score-good';
+            if (score >= 15) return 'score-average';
+            return 'score-poor';
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const tableContainer = document.getElementById('tableContainer');
+            
+            if (testRecords.length === 0) {
+                tableContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon"></div>
+                        <div>暂无测试记录</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>姓名</th>
+                            <th>班级</th>
+                            <th>专业部门</th>
+                            <th>开始时间</th>
+                            <th>结束时间</th>
+                            <th>测试用时</th>
+                            <th>得分</th>
+                            <th>提交时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            testRecords.forEach((record, index) => {
+                const startTime = new Date(record.startTime).toLocaleString('zh-CN');
+                const endTime = new Date(record.endTime).toLocaleString('zh-CN');
+                const submitTime = new Date(record.submitTime).toLocaleString('zh-CN');
+                const scoreClass = getScoreClass(record.score);
+                
+                tableHTML += `
+                    <tr>
+                        <td>${record.id}</td>
+                        <td><strong>${record.studentName}</strong></td>
+                        <td>${record.className}</td>
+                        <td>${record.major}</td>
+                        <td>${startTime}</td>
+                        <td>${endTime}</td>
+                        <td>${record.duration}</td>
+                        <td><span class="score-badge ${scoreClass}">${record.score} / ${record.totalScore}</span></td>
+                        <td>${submitTime}</td>
+                        <td>
+                            <button class="delete-btn" onclick="deleteRecord(${record.id}, '${record.studentName}')">
+                                🗑️ 删除
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            tableContainer.innerHTML = tableHTML;
+        }
+
+        // 删除记录
+        async function deleteRecord(recordId, studentName) {
+            // 确认删除
+            const confirmed = confirm(`确定要删除 ${studentName} 的测试记录吗？\n\n此操作不可恢复！`);
+            
+            if (!confirmed) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/test-records/${recordId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ 删除成功！');
+                    // 重新加载数据
+                    loadData();
+                } else {
+                    alert('❌ 删除失败：' + result.msg);
+                }
+            } catch (error) {
+                console.error('删除失败:', error);
+                alert('❌ 删除失败，请重试');
+            }
+        }
+
+        // 导出 Excel
+        async function exportExcel() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '导出中...';
+            
+            try {
+                const response = await fetch('/api/export-excel');
+                
+                if (!response.ok) {
+                    throw new Error('导出失败');
+                }
+                
+                // 创建下载链接
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `测试成绩_${new Date().toISOString().slice(0,10)}.xlsx`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+                
+                alert('✅ Excel 文件已生成并开始下载！');
+            } catch (error) {
+                console.error('导出失败:', error);
+                alert(' 导出失败，请重试');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '📥 导出 Excel';
+            }
+        }
+    </script>
+</body>
+</html>

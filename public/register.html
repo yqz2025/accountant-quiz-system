@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会计基础随机测验-注册</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family: "Microsoft YaHei",sans-serif}
+        body{background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px}
+        .card{max-width:460px;width:100%;background:white;padding:40px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,0.15)}
+        .title{text-align:center;font-size:24px;margin-bottom:10px;color:#2c3e50}
+        .subtitle{text-align:center;font-size:14px;margin-bottom:30px;color:#7f8c8d}
+        .input-item{margin-bottom:20px}
+        .input-item label{display:block;margin-bottom:8px;color:#555;font-weight:500}
+        .input-item input{width:100%;padding:14px 16px;border:1px solid #ddd;border-radius:8px;font-size:15px;transition: border-color 0.3s}
+        .input-item input:focus{outline:none;border-color:#2d67ea}
+        .input-item select{width:100%;padding:14px 16px;border:1px solid #ddd;border-radius:8px;font-size:15px;background:white;cursor:pointer}
+        .input-item select:focus{outline:none;border-color:#2d67ea}
+        .btn{width:100%;padding:15px;background:#2d67ea;color:white;border:none;border-radius:8px;font-size:16px;margin-top:10px;cursor:pointer;font-weight:600;transition:background 0.3s}
+        .btn:hover{background:#1d55d1}
+        .btn:active{transform:scale(0.98)}
+        .error-msg{color:#e74c3c;font-size:13px;margin-top:5px;display:none}
+        .back-link{text-align:center;margin-top:20px}
+        .back-link a{color:#2d67ea;text-decoration:none;font-size:14px}
+        .back-link a:hover{text-decoration:underline}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="title">📝 会计基础随机测验</div>
+        <div class="subtitle">请先注册您的信息，然后开始答题</div>
+        <div class="input-item">
+            <label>姓名 *</label>
+            <input id="name" placeholder="请输入你的姓名">
+            <div class="error-msg" id="nameError">请输入姓名</div>
+        </div>
+        <div class="input-item">
+            <label>班别 *</label>
+            <input id="className" placeholder="例如：22级计算机1班">
+            <div class="error-msg" id="classError">请输入班别</div>
+        </div>
+        <div class="input-item">
+            <label>专业部门 *</label>
+            <select id="major">
+                <option value="">请选择专业部门</option>
+                <option value="经管部">经管部</option>
+                <option value="幼康部">幼康部</option>
+                <option value="汽车部">汽车部</option>
+                <option value="机电部">机电部</option>
+                <option value="信息部">信息部</option>
+            </select>
+            <div class="error-msg" id="majorError">请选择专业部门</div>
+        </div>
+        <button class="btn" onclick="register()">确认并进入答题</button>
+        <div class="back-link">
+            <a href="/">← 返回首页</a>
+        </div>
+    </div>
+
+    <script>
+        async function register(){
+            const name = document.getElementById('name').value.trim();
+            const className = document.getElementById('className').value.trim();
+            const major = document.getElementById('major').value.trim();
+            
+            // 验证输入
+            let hasError = false;
+            
+            if(!name){
+                document.getElementById('nameError').style.display = 'block';
+                hasError = true;
+            } else {
+                document.getElementById('nameError').style.display = 'none';
+            }
+            
+            if(!className){
+                document.getElementById('classError').style.display = 'block';
+                hasError = true;
+            } else {
+                document.getElementById('classError').style.display = 'none';
+            }
+            
+            if(!major){
+                document.getElementById('majorError').style.display = 'block';
+                hasError = true;
+            } else {
+                document.getElementById('majorError').style.display = 'none';
+            }
+            
+            if(hasError) return;
+            
+            const btn = document.querySelector('.btn');
+            btn.textContent = '注册中...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name, className, major})
+                });
+                
+                const data = await res.json();
+                
+                if(!data.success){
+                    alert(data.msg);
+                    btn.textContent = '确认并进入答题';
+                    btn.disabled = false;
+                    return;
+                }
+                
+                // 保存用户信息到 localStorage
+                localStorage.setItem('studentId', data.student.id);
+                localStorage.setItem('studentName', data.student.name);
+                localStorage.setItem('studentClass', data.student.className);
+                localStorage.setItem('studentMajor', data.student.major);
+                
+                // 跳转到测试页面
+                alert('注册成功！欢迎 ' + data.student.name);
+                location.href = '/test';
+            } catch (error) {
+                console.error('注册失败:', error);
+                alert('注册失败，请重试');
+                btn.textContent = '确认并进入答题';
+                btn.disabled = false;
+            }
+        }
+        
+        // 回车键提交
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                register();
+            }
+        });
+    </script>
+</body>
+</html>

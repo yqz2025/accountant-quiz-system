@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题目管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .password-box {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .password-box h2 {
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 24px;
+        }
+
+        .password-box p {
+            color: #6c757d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .password-input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .password-input-group input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .password-input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .password-input-group .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 18px;
+        }
+
+        .password-input-group .toggle-password:hover {
+            color: #667eea;
+        }
+
+        .password-submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .password-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .password-submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin-top: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .lock-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .toolbar {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .stats {
+            padding: 15px 30px;
+            background: #fff;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .table-container {
+            padding: 20px 30px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            vertical-align: top;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .question-text {
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-single {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .type-multiple {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .type-truefalse {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .options-container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .option-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .option-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .option-item input[type="text"] {
+            flex: 1;
+        }
+
+        .option-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .pagination {
+            padding: 20px 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-info {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 2000;
+            animation: slideInRight 0.3s;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast.error {
+            border-left: 4px solid #dc3545;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 密码验证层 -->
+    <div id="passwordOverlay" class="password-overlay">
+        <div class="password-box">
+            <div class="lock-icon"></div>
+            <h2>管理员验证</h2>
+            <p>请输入管理密码以访问题目管理系统</p>
+            <div class="password-input-group">
+                <input 
+                    type="password" 
+                    id="passwordInput" 
+                    placeholder="请输入密码"
+                    onkeypress="if(event.key === 'Enter') verifyPassword()"
+                    autofocus
+                >
+                <button class="toggle-password" onclick="togglePasswordVisibility()">👁️</button>
+            </div>
+            <button class="password-submit-btn" onclick="verifyPassword()">验证并进入</button>
+            <div id="errorMsg" class="error-message">❌ 密码错误，请重试</div>
+        </div>
+    </div>
+
+    <div class="container" id="mainContainer" style="display: none;">
+        <div class="header">
+            <h1>📚 题目管理系统</h1>
+            <p>会计基础题库管理</p>
+        </div>
+
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <button class="btn btn-primary" onclick="openAddModal()">➕ 添加题目</button>
+                <button class="btn btn-success" onclick="importQuestions()">📥 导入题目</button>
+                <button class="btn btn-secondary" onclick="refreshData()">🔄 刷新</button>
+                <button class="btn btn-danger" onclick="logout()" style="margin-left: 10px;"> 退出</button>
+            </div>
+            <div class="filter-group">
+                <select id="filterType" onchange="filterQuestions()">
+                    <option value="">全部题型</option>
+                    <option value="single_choice">单选题</option>
+                    <option value="multiple_choice">多选题</option>
+                    <option value="true_false">判断题</option>
+                </select>
+                <select id="filterPaper" onchange="filterQuestions()">
+                    <option value="">全部试卷</option>
+                </select>
+                <input type="text" id="searchKeyword" placeholder="搜索题目..." oninput="filterQuestions()">
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">总题数:</span>
+                <span class="stat-value" id="totalCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">单选题:</span>
+                <span class="stat-value" id="singleCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">多选题:</span>
+                <span class="stat-value" id="multipleCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">判断题:</span>
+                <span class="stat-value" id="trueFalseCount">0</span>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <div id="loadingState" class="loading">加载中...</div>
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                </svg>
+                <p>暂无题目数据</p>
+            </div>
+            <table id="questionsTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>试卷</th>
+                        <th>题号</th>
+                        <th>题型</th>
+                        <th>题目内容</th>
+                        <th>答案</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="questionsBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <button class="btn btn-secondary btn-sm" onclick="changePage(-1)">上一页</button>
+            <span class="page-info" id="pageInfo">第 1 页 / 共 1 页</span>
+            <button class="btn btn-secondary btn-sm" onclick="changePage(1)">下一页</button>
+        </div>
+    </div>
+
+    <!-- 添加/编辑题目模态框 -->
+    <div id="questionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">添加题目</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="questionForm">
+                    <input type="hidden" id="questionId">
+                    
+                    <div class="form-group">
+                        <label for="paper">试卷名称 *</label>
+                        <input type="text" id="paper" required placeholder="例如：15年下">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="questionNum">题号 *</label>
+                        <input type="number" id="questionNum" required min="1" placeholder="例如：1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="questionType">题型 *</label>
+                        <select id="questionType" required onchange="updateOptionsUI()">
+                            <option value="">请选择题型</option>
+                            <option value="single_choice">单选题</option>
+                            <option value="multiple_choice">多选题</option>
+                            <option value="true_false">判断题</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="questionText">题目内容 *</label>
+                        <textarea id="questionText" required placeholder="请输入题目内容"></textarea>
+                    </div>
+
+                    <div class="form-group" id="optionsGroup">
+                        <label>选项设置 *</label>
+                        <div class="options-container" id="optionsContainer">
+                            <!-- 动态生成选项输入框 -->
+                        </div>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick="addOption()" style="margin-top: 10px;">+ 添加选项</button>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="answer">正确答案 *</label>
+                        <input type="text" id="answer" required placeholder="单选题填A/B/C/D，多选题填ABCD，判断题填true/false">
+                        <small style="color: #6c757d; display: block; margin-top: 5px;">
+                            单选题：填写一个字母（如 A）<br>
+                            多选题：填写多个字母（如 ABC）<br>
+                            判断题：填写 true 或 false
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="explanation">答案解析</label>
+                        <textarea id="explanation" placeholder="请输入答案解析（可选）"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveQuestion()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入题目模态框 -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>导入题目</h2>
+                <button class="close-btn" onclick="closeImportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>选择本地题目文件</label>
+                    
+                    <div style="border: 2px dashed #667eea; border-radius: 8px; padding: 40px; text-align: center; background: #f8f9ff;">
+                        <div style="font-size: 64px; margin-bottom: 15px;">📁</div>
+                        <h3 style="color: #333; margin-bottom: 10px;">从本地文件导入题目</h3>
+                        <p style="color: #6c757d; margin-bottom: 20px;">
+                            选择本地的 JSON 或 JavaScript 文件进行导入
+                        </p>
+                        <input 
+                            type="file" 
+                            id="fileInput" 
+                            accept=".json,.js" 
+                            style="display: none;"
+                            onchange="handleFileSelect(event)"
+                        >
+                        <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()" style="font-size: 16px; padding: 12px 30px;">
+                            选择文件
+                        </button>
+                        <div id="fileName" style="margin-top: 15px; color: #28a745; font-weight: 500; display: none;">
+                        </div>
+                        <small style="color: #6c757d; display: block; margin-top: 15px;">
+                            支持格式：JSON 文件 (.json) 或 JavaScript 文件 (.js)<br>
+                            文件格式应包含题目数组数据
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        const ADMIN_PASSWORD = '123456';
+        let allQuestions = [];
+        let filteredQuestions = [];
+        let currentPage = 1;
+        const pageSize = 20;
+
+        // 验证密码
+        function verifyPassword() {
+            const input = document.getElementById('passwordInput');
+            const errorMsg = document.getElementById('errorMsg');
+            const overlay = document.getElementById('passwordOverlay');
+            const mainContainer = document.getElementById('mainContainer');
+            
+            if (input.value === ADMIN_PASSWORD) {
+                // 密码正确，显示主界面
+                overlay.style.display = 'none';
+                mainContainer.style.display = 'block';
+                
+                // 加载题目数据
+                loadQuestions();
+                
+                // 保存验证状态到 sessionStorage（刷新页面后不需要重新输入）
+                sessionStorage.setItem('adminVerified', 'true');
+            } else {
+                // 密码错误
+                errorMsg.classList.add('show');
+                input.value = '';
+                input.focus();
+                
+                // 3秒后隐藏错误信息
+                setTimeout(() => {
+                    errorMsg.classList.remove('show');
+                }, 3000);
+            }
+        }
+
+        // 切换密码显示/隐藏
+        function togglePasswordVisibility() {
+            const input = document.getElementById('passwordInput');
+            const btn = document.querySelector('.toggle-password');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+
+        // 页面加载时检查是否已验证
+        window.onload = function() {
+            if (sessionStorage.getItem('adminVerified') === 'true') {
+                // 已验证，直接显示主界面
+                document.getElementById('passwordOverlay').style.display = 'none';
+                document.getElementById('mainContainer').style.display = 'block';
+                loadQuestions();
+            } else {
+                // 未验证，显示密码输入框
+                document.getElementById('passwordInput').focus();
+            }
+        };
+
+        // 刷新数据
+        async function refreshData() {
+            showToast('正在刷新数据...', 'success');
+            await loadQuestions();
+        }
+
+        // 加载题目数据
+        async function loadQuestions() {
+            showLoading(true);
+            
+            try {
+                // 添加时间戳防止缓存
+                const timestamp = new Date().getTime();
+                const response = await fetch(`/api/questions?t=${timestamp}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    allQuestions = result.data;
+                    updateStats();
+                    updatePaperFilter();
+                    filterQuestions();
+                    showToast('数据已更新', 'success');
+                } else {
+                    showToast('加载失败: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('加载题目失败:', error);
+                showToast('网络错误', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('totalCount').textContent = allQuestions.length;
+            document.getElementById('singleCount').textContent = allQuestions.filter(q => q.type === 'single_choice').length;
+            document.getElementById('multipleCount').textContent = allQuestions.filter(q => q.type === 'multiple_choice').length;
+            document.getElementById('trueFalseCount').textContent = allQuestions.filter(q => q.type === 'true_false').length;
+        }
+
+        // 更新试卷筛选器
+        function updatePaperFilter() {
+            const papers = [...new Set(allQuestions.map(q => q.paper))];
+            const select = document.getElementById('filterPaper');
+            select.innerHTML = '<option value="">全部试卷</option>';
+            papers.forEach(paper => {
+                select.innerHTML += `<option value="${paper}">${paper}</option>`;
+            });
+        }
+
+        // 筛选题目
+        function filterQuestions() {
+            const typeFilter = document.getElementById('filterType').value;
+            const paperFilter = document.getElementById('filterPaper').value;
+            const keyword = document.getElementById('searchKeyword').value.toLowerCase();
+
+            filteredQuestions = allQuestions.filter(q => {
+                const matchType = !typeFilter || q.type === typeFilter;
+                const matchPaper = !paperFilter || q.paper === paperFilter;
+                const matchKeyword = !keyword || 
+                    q.question.toLowerCase().includes(keyword) ||
+                    q.answer.toLowerCase().includes(keyword);
+                
+                return matchType && matchPaper && matchKeyword;
+            });
+
+            currentPage = 1;
+            renderTable();
+        }
+
+        // 渲染表格
+        function renderTable() {
+            const table = document.getElementById('questionsTable');
+            const tbody = document.getElementById('questionsBody');
+            const emptyState = document.getElementById('emptyState');
+            const pagination = document.getElementById('pagination');
+
+            if (filteredQuestions.length === 0) {
+                table.style.display = 'none';
+                emptyState.style.display = 'block';
+                pagination.style.display = 'none';
+                return;
+            }
+
+            table.style.display = 'table';
+            emptyState.style.display = 'none';
+            pagination.style.display = 'flex';
+
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageData = filteredQuestions.slice(startIndex, endIndex);
+
+            tbody.innerHTML = pageData.map(q => {
+                const typeClass = q.type === 'single_choice' ? 'type-single' : 
+                                 q.type === 'multiple_choice' ? 'type-multiple' : 'type-truefalse';
+                const typeName = q.type === 'single_choice' ? '单选题' : 
+                                q.type === 'multiple_choice' ? '多选题' : '判断题';
+                
+                return `
+                    <tr>
+                        <td>${q.id}</td>
+                        <td>${q.paper}</td>
+                        <td>${q.question_num}</td>
+                        <td><span class="type-badge ${typeClass}">${typeName}</span></td>
+                        <td class="question-text">${escapeHtml(q.question)}</td>
+                        <td><strong>${q.answer}</strong></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary btn-sm" onclick="editQuestion(${q.id})">编辑</button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteQuestion(${q.id})">删除</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            const totalPages = Math.ceil(filteredQuestions.length / pageSize);
+            document.getElementById('pageInfo').textContent = `第 ${currentPage} 页 / 共 ${totalPages} 页`;
+        }
+
+        // 翻页
+        function changePage(delta) {
+            const totalPages = Math.ceil(filteredQuestions.length / pageSize);
+            const newPage = currentPage + delta;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                renderTable();
+            }
+        }
+
+        // 打开添加模态框
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = '添加题目';
+            document.getElementById('questionForm').reset();
+            document.getElementById('questionId').value = '';
+            updateOptionsUI();
+            document.getElementById('questionModal').classList.add('active');
+        }
+
+        // 编辑题目
+        async function editQuestion(id) {
+            try {
+                const response = await fetch(`/api/questions/detail/${id}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    const q = result.data;
+                    document.getElementById('modalTitle').textContent = '编辑题目';
+                    document.getElementById('questionId').value = q.id;
+                    document.getElementById('paper').value = q.paper;
+                    document.getElementById('questionNum').value = q.question_num;
+                    document.getElementById('questionType').value = q.type;
+                    document.getElementById('questionText').value = q.question;
+                    document.getElementById('answer').value = q.answer;
+                    document.getElementById('explanation').value = q.explanation || '';
+                    
+                    updateOptionsUI();
+                    
+                    // 填充选项
+                    const container = document.getElementById('optionsContainer');
+                    container.innerHTML = '';
+                    q.options.forEach((opt, index) => {
+                        addOptionWithValue(opt, index);
+                    });
+                    
+                    document.getElementById('questionModal').classList.add('active');
+                } else {
+                    showToast('获取题目详情失败', 'error');
+                }
+            } catch (error) {
+                console.error('编辑题目失败:', error);
+                showToast('网络错误', 'error');
+            }
+        }
+
+        // 删除题目
+        async function deleteQuestion(id) {
+            if (!confirm('确定要删除这道题目吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/questions/${id}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast('删除成功', 'success');
+                    loadQuestions();
+                } else {
+                    showToast('删除失败: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('删除题目失败:', error);
+                showToast('网络错误', 'error');
+            }
+        }
+
+        // 保存题目
+        async function saveQuestion() {
+            const id = document.getElementById('questionId').value;
+            const paper = document.getElementById('paper').value.trim();
+            const questionNum = parseInt(document.getElementById('questionNum').value);
+            const type = document.getElementById('questionType').value;
+            const question = document.getElementById('questionText').value.trim();
+            const answer = document.getElementById('answer').value.trim();
+            const explanation = document.getElementById('explanation').value.trim();
+
+            // 验证必填项
+            if (!paper || !questionNum || !type || !question || !answer) {
+                showToast('请填写所有必填项', 'error');
+                return;
+            }
+
+            // 收集选项
+            const options = [];
+            const optionInputs = document.querySelectorAll('#optionsContainer input[type="text"]');
+            optionInputs.forEach(input => {
+                if (input.value.trim()) {
+                    options.push(input.value.trim());
+                }
+            });
+
+            if (options.length === 0) {
+                showToast('请至少添加一个选项', 'error');
+                return;
+            }
+
+            const questionData = {
+                paper,
+                question_num: questionNum,
+                type,
+                question,
+                options,
+                answer,
+                explanation
+            };
+
+            try {
+                let response;
+                if (id) {
+                    // 更新
+                    response = await fetch(`/api/questions/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(questionData)
+                    });
+                } else {
+                    // 创建
+                    response = await fetch('/api/questions', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(questionData)
+                    });
+                }
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(id ? '更新成功' : '添加成功', 'success');
+                    closeModal();
+                    loadQuestions();
+                } else {
+                    showToast('保存失败: ' + result.message, 'error');
+                }
+            } catch (error) {
+                console.error('保存题目失败:', error);
+                showToast('网络错误', 'error');
+            }
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('questionModal').classList.remove('active');
+        }
+
+        // 更新选项UI
+        function updateOptionsUI() {
+            const type = document.getElementById('questionType').value;
+            const optionsGroup = document.getElementById('optionsGroup');
+            const container = document.getElementById('optionsContainer');
+
+            if (type === 'true_false') {
+                optionsGroup.style.display = 'none';
+                container.innerHTML = '';
+            } else {
+                optionsGroup.style.display = 'block';
+                if (container.children.length === 0) {
+                    // 默认添加4个选项
+                    for (let i = 0; i < 4; i++) {
+                        addOption();
+                    }
+                }
+            }
+        }
+
+        // 添加选项
+        function addOption() {
+            addOptionWithValue('');
+        }
+
+        function addOptionWithValue(value = '', index = null) {
+            const container = document.getElementById('optionsContainer');
+            const div = document.createElement('div');
+            div.className = 'option-item';
+            
+            const label = index !== null ? String.fromCharCode(65 + index) : 
+                         String.fromCharCode(65 + container.children.length);
+            
+            div.innerHTML = `
+                <span style="font-weight: bold; min-width: 20px;">${label}.</span>
+                <input type="text" value="${escapeHtml(value)}" placeholder="选项内容">
+                <button type="button" class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">删除</button>
+            `;
+            
+            container.appendChild(div);
+        }
+
+        // 导入题目
+        function importQuestions() {
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        // 处理文件选择
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const fileNameDiv = document.getElementById('fileName');
+            fileNameDiv.textContent = `已选择文件: ${file.name}`;
+            fileNameDiv.style.display = 'block';
+
+            // 读取文件内容
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                let questions = [];
+
+                try {
+                    if (file.name.endsWith('.json')) {
+                        // JSON 文件
+                        questions = JSON.parse(content);
+                    } else if (file.name.endsWith('.js')) {
+                        // JavaScript 文件，解析 window.questionsData = [...] 格式
+                        const match = content.match(/window\.questionsData\s*=\s*(\[[\s\S]*\])/);
+                        if (match) {
+                            questions = JSON.parse(match[1]);
+                        } else {
+                            throw new Error('无法解析 JavaScript 文件格式');
+                        }
+                    }
+
+                    if (!Array.isArray(questions) || questions.length === 0) {
+                        throw new Error('文件中没有有效的题目数据');
+                    }
+
+                    // 显示导入选项对话框
+                    showImportOptions(questions);
+                    
+                    // 重置文件输入框，允许再次选择同一文件
+                    setTimeout(() => {
+                        event.target.value = '';
+                    }, 500);
+                } catch (error) {
+                    console.error('解析文件失败:', error);
+                    showToast('文件解析失败: ' + error.message, 'error');
+                    fileNameDiv.style.display = 'none';
+                    event.target.value = '';
+                }
+            };
+
+            reader.onerror = function() {
+                showToast('读取文件失败', 'error');
+                fileNameDiv.style.display = 'none';
+                event.target.value = '';
+            };
+
+            reader.readAsText(file);
+        }
+
+        // 关闭导入模态框
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('active');
+            // 重置文件输入框和文件名显示
+            const fileInput = document.getElementById('fileInput');
+            const fileNameDiv = document.getElementById('fileName');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+            if (fileNameDiv) {
+                fileNameDiv.style.display = 'none';
+                fileNameDiv.textContent = '';
+            }
+        }
+
+        // 显示/隐藏加载状态
+        function showLoading(show) {
+            document.getElementById('loadingState').style.display = show ? 'block' : 'none';
+        }
+
+        // 显示提示
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // HTML转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+
+        // 退出登录功能（清除验证状态）
+        function logout() {
+            if (confirm('确定要退出管理页面吗？退出后需要重新输入密码。')) {
+                sessionStorage.removeItem('adminVerified');
+                location.reload();
+            }
+        }
+
+        // 显示导入选项（本地文件）
+        function showImportOptions(questions) {
+            const fileNameDiv = document.getElementById('fileName');
+            
+            // 创建一个模态框让用户选择导入方式
+            const choiceModal = document.createElement('div');
+            choiceModal.id = 'importChoiceModal';
+            choiceModal.className = 'modal active';
+            choiceModal.style.zIndex = '3000';
+            
+            choiceModal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <div class="modal-header">
+                        <h2>选择导入方式</h2>
+                        <button class="close-btn" onclick="closeImportChoiceModal()">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                            <p style="margin: 0; color: #1976d2; font-size: 16px;">
+                                <strong>已解析 ${questions.length} 道题目</strong>
+                            </p>
+                        </div>
+                        
+                        <p style="color: #6c757d; margin-bottom: 20px; text-align: center;">
+                            请选择如何导入这些题目：
+                        </p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div style="border: 2px solid #e9ecef; border-radius: 8px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s;" 
+                                 onmouseover="this.style.borderColor='#dc3545'; this.style.background='#fff5f5'" 
+                                 onmouseout="this.style.borderColor='#e9ecef'; this.style.background='white'"
+                                 onclick="importLocalFileWithReplace(window.pendingQuestions)">
+                                <div style="font-size: 48px; margin-bottom: 10px;"></div>
+                                <h3 style="color: #dc3545; margin-bottom: 8px;">覆盖导入</h3>
+                                <p style="color: #6c757d; font-size: 13px; margin: 0;">
+                                    清空所有现有题目<br>
+                                    然后导入新题目<br>
+                                    <strong style="color: #dc3545;">⚠️ 不可恢复</strong>
+                                </p>
+                            </div>
+                            
+                            <div style="border: 2px solid #e9ecef; border-radius: 8px; padding: 25px; text-align: center; cursor: pointer; transition: all 0.3s;" 
+                                 onmouseover="this.style.borderColor='#28a745'; this.style.background='#f5fff5'" 
+                                 onmouseout="this.style.borderColor='#e9ecef'; this.style.background='white'"
+                                 onclick="importLocalFileWithAppend(window.pendingQuestions)">
+                                <div style="font-size: 48px; margin-bottom: 10px;">➕</div>
+                                <h3 style="color: #28a745; margin-bottom: 8px;">追加导入</h3>
+                                <p style="color: #6c757d; font-size: 13px; margin: 0;">
+                                    保留所有现有题目<br>
+                                    在末尾添加新题目<br>
+                                    <strong style="color: #28a745;">✓ 安全操作</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(choiceModal);
+            
+            // 将题目数据保存到全局变量
+            window.pendingQuestions = questions;
+        }
+
+        // 关闭导入选择模态框
+        function closeImportChoiceModal() {
+            const modal = document.getElementById('importChoiceModal');
+            if (modal) {
+                modal.remove();
+            }
+            window.pendingQuestions = null;
+            
+            // 同时重置主导入模态框的文件输入
+            const fileInput = document.getElementById('fileInput');
+            const fileNameDiv = document.getElementById('fileName');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+            if (fileNameDiv) {
+                fileNameDiv.style.display = 'none';
+                fileNameDiv.textContent = '';
+            }
+        }
+
+        // 本地文件 - 覆盖导入
+        async function importLocalFileWithReplace(questions) {
+            if (!questions || questions.length === 0) {
+                showToast('没有可导入的题目数据', 'error');
+                return;
+            }
+
+            // 关闭选择模态框
+            closeImportChoiceModal();
+
+            try {
+                showToast('正在清空原有数据...', 'success');
+                
+                // 先清空现有数据
+                const clearResponse = await fetch('/api/questions/clear', { method: 'DELETE' });
+                const clearResult = await clearResponse.json();
+                
+                if (!clearResult.success) {
+                    throw new Error('清空数据失败');
+                }
+
+                showToast('正在导入题目...', 'success');
+                
+                // 批量导入到数据库
+                const importResponse = await fetch('/api/questions/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ questions })
+                });
+
+                const importResult = await importResponse.json();
+                
+                if (importResult.success) {
+                    showToast('✅ ' + importResult.message, 'success');
+                    // 先关闭导入模态框
+                    closeImportModal();
+                    // 等待一下确保数据库操作完成
+                    setTimeout(() => {
+                        loadQuestions();
+                    }, 300);
+                } else {
+                    showToast('导入失败: ' + importResult.message, 'error');
+                }
+            } catch (error) {
+                console.error('覆盖导入失败:', error);
+                showToast('导入失败: ' + error.message, 'error');
+            }
+        }
+
+        // 本地文件 - 追加导入
+        async function importLocalFileWithAppend(questions) {
+            if (!questions || questions.length === 0) {
+                showToast('没有可导入的题目数据', 'error');
+                return;
+            }
+
+            // 关闭选择模态框
+            closeImportChoiceModal();
+
+            try {
+                showToast('正在导入题目...', 'success');
+                
+                // 批量导入到数据库（不清空原有数据）
+                const importResponse = await fetch('/api/questions/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ questions })
+                });
+
+                const importResult = await importResponse.json();
+                
+                if (importResult.success) {
+                    showToast('✅ ' + importResult.message, 'success');
+                    // 先关闭导入模态框
+                    closeImportModal();
+                    // 等待一下确保数据库操作完成
+                    setTimeout(() => {
+                        loadQuestions();
+                    }, 300);
+                } else {
+                    showToast('导入失败: ' + importResult.message, 'error');
+                }
+            } catch (error) {
+                console.error('追加导入失败:', error);
+                showToast('导入失败: ' + error.message, 'error');
+            }
+        }
+
+    </script>
+</body>
+</html>

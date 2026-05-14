@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>会计基础答题系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e66 0%, #1e3a5f 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .mode-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .mode-card {
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #2c3e66;
+        }
+        .mode-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .mode-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e66;
+            margin-bottom: 10px;
+        }
+        .mode-description {
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .mode-btn {
+            display: inline-block;
+            background: #2c3e66;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .mode-btn:hover {
+            background: #1e2a47;
+        }
+        .features {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #e2e8f0;
+        }
+        .features h2 {
+            color: #2c3e66;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #475569;
+        }
+        .feature-icon {
+            color: #10b981;
+            font-size: 1.2rem;
+        }
+        footer {
+            background: #f1f5f9;
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 会计基础答题系统</h1>
+            <p>专业 · 高效 · 智能练习平台</p>
+        </div>
+        
+        <div class="content">
+            <div class="mode-cards">
+                <div class="mode-card">
+                    <div class="mode-icon">📖</div>
+                    <div class="mode-title">练习模式</div>
+                    <div class="mode-description">
+                        逐题练习，即时反馈<br>
+                        查看所有题目，反复练习<br>
+                        适合系统学习和巩固知识
+                    </div>
+                    <a href="/practice" class="mode-btn">开始练习</a>
+                </div>
+                
+                <div class="mode-card">
+                    <div class="mode-icon">🎯</div>
+                    <div class="mode-title">测试模式</div>
+                    <div class="mode-description">
+                        随机抽题，模拟考试<br>
+                        15道题（5单选+5多选+5判断）<br>
+                        完成后查看成绩和解析
+                    </div>
+                    <a href="/register" class="mode-btn">开始测试</a>
+                </div>
+            </div>
+            
+            <div class="features">
+                <h2>✨ 系统特色</h2>
+                <div class="feature-list">
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        <span>50道精选题目</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        <span>三种题型覆盖</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        <span>详细答案解析</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        <span>智能随机抽题</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        <span>实时成绩统计</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-icon">✓</span>
+                        <span>错题回顾功能</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+        <footer>
+            <p>© 2026 会计基础答题系统 | 基于 2015年下半年真题</p>
+            <p style="margin-top:10px;"><a href="/admin" style="color:#64748b;text-decoration:none;font-size:0.85rem;">📊 数据管理后台</a></p>
+        </footer>
+
+    </div>
+</body>
+</html>
