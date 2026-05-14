@@ -1,5 +1,3 @@
-# 创建 .gitignore 文件
-cat > .gitignore << 'EOF'
 node_modules/
 *.db
 *.db-journal
@@ -17,7 +15,3 @@ Thumbs.db
 *.swp
 *.swo
 .pm2/
-EOF
-
-# 验证文件已创建
-cat .gitignore
