@@ -8,7 +8,7 @@ const cors = require('cors');
 const compression = require('compression');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const NODE_ENV = process.env.NODE_ENV || 'production';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '123456';
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'quiz.db');
