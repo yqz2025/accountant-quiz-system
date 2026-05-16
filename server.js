@@ -1,7 +1,7 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
-const Database = require('better-sqlite3');
+const sqlite3 = require('sqlite3').verbose();
 const XLSX = require('xlsx');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -26,23 +26,21 @@ app.use(compression());
 app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
-// 设置静态文件目录
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 初始化 SQLite 数据库
-const db = new Database(DB_PATH, {
-    fileMustExist: false
+const db = new sqlite3.Database(DB_PATH, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+    if (err) {
+        console.error('数据库连接失败:', err.message);
+    } else {
+        console.log('✓ 数据库连接成功');
+    }
 });
 
-// 优化 SQLite 配置（小内存优化）
-db.pragma('journal_mode = WAL');
-db.pragma('synchronous = NORMAL');
-db.pragma('cache_size = -16000');
-db.pragma('temp_store = MEMORY');
+db.run('PRAGMA journal_mode = WAL');
+db.run('PRAGMA synchronous = NORMAL');
+db.run('PRAGMA cache_size = -16000');
+db.run('PRAGMA temp_store = MEMORY');
 
-console.log('✓ 数据库连接成功');
-
-// 创建数据表
 db.exec(`
     CREATE TABLE IF NOT EXISTS students (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -79,7 +77,11 @@ db.exec(`
         createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
         updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
     );
-`);
+`, (err) => {
+    if (err) {
+        console.error('创建表失败:', err.message);
+    }
+});
 
 // API 路由 - 用户注册
 app.post('/api/register', (req, res) => {
@@ -95,24 +97,34 @@ app.post('/api/register', (req, res) => {
 
         const registerTime = new Date().toISOString();
         
-        const stmt = db.prepare('INSERT INTO students (name, className, major, registerTime) VALUES (?, ?, ?, ?)');
-        const info = stmt.run(name, className, major, registerTime);
-        
-        const newStudent = {
-            id: info.lastInsertRowid,
-            name,
-            className,
-            major,
-            registerTime
-        };
-        
-        console.log(`✅ 新用户注册: ${name} (${className} - ${major})`);
-        
-        res.json({
-            success: true,
-            msg: '注册成功',
-            student: newStudent
-        });
+        db.run('INSERT INTO students (name, className, major, registerTime) VALUES (?, ?, ?, ?)', 
+            [name, className, major, registerTime],
+            function(err) {
+                if (err) {
+                    console.error('注册失败:', err);
+                    return res.status(500).json({
+                        success: false,
+                        msg: '服务器错误'
+                    });
+                }
+                
+                const newStudent = {
+                    id: this.lastID,
+                    name,
+                    className,
+                    major,
+                    registerTime
+                };
+                
+                console.log(`✅ 新用户注册: ${name} (${className} - ${major})`);
+                
+                res.json({
+                    success: true,
+                    msg: '注册成功',
+                    student: newStudent
+                });
+            }
+        );
     } catch (error) {
         console.error('注册失败:', error);
         res.status(500).json({
